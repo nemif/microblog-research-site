@@ -1,0 +1,38 @@
+site_name: Исследование оптимизации загрузки изображений
+site_description: Научные материалы и воспроизводимые результаты эксперимента MicroBlog
+site_author: Фотеев Иван Алексеевич
+# Оставьте site_url пустым до создания публичного URL; позже установите его в GitHub Pages URL.
+# Пример: https://USERNAME.github.io/REPOSITORY/
+# site_url: https://USERNAME.github.io/REPOSITORY/
+use_directory_urls: false
+nav:
+  - Главная: index.md
+  - Методика исследования: methodology.md
+  - Результаты эксперимента: results.md
+  - Научные источники: sources.md
+  - О воспроизводимости: reproducibility.md
+  - Лицензии: licenses.md
+theme:
+  name: material
+  language: ru
+  palette:
+    scheme: default
+    primary: indigo
+    accent: blue
+  features:
+    - navigation.sections
+    - search.highlight
+plugins:
+  - search:
+      lang: ru
+markdown_extensions:
+  - admonition
+  - tables
+  - attr_list
+  - toc:
+      permalink: true
+  - pymdownx.superfences
+  - pymdownx.arithmatex:
+      generic: true
+extra_css:
+  - assets/custom.css

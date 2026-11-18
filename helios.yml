@@ -1,0 +1,42 @@
+# OPTIONAL WORKFLOW: requires repository secrets and access to Helios over SSH.
+# Configure HELIOS_HOST, HELIOS_USER, HELIOS_PATH, HELIOS_SSH_KEY, HELIOS_KNOWN_HOSTS, HELIOS_URL.
+# GitHub-hosted runners must be able to reach the target SSH port.
+name: Optional Helios deployment
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  deploy-helios:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install -r requirements.txt
+      - run: python scripts/generate_results.py && mkdocs build --strict
+      - name: Install restricted SSH identity
+        env:
+          PRIVATE_KEY: ${{ secrets.HELIOS_SSH_KEY }}
+          KNOWN_HOSTS: ${{ secrets.HELIOS_KNOWN_HOSTS }}
+        run: |
+          mkdir -p ~/.ssh
+          chmod 700 ~/.ssh
+          printf '%s\n' "$PRIVATE_KEY" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          printf '%s\n' "$KNOWN_HOSTS" > ~/.ssh/known_hosts
+          chmod 600 ~/.ssh/known_hosts
+      - name: Transfer site to configured directory
+        env:
+          HOST: ${{ secrets.HELIOS_HOST }}
+          USER: ${{ secrets.HELIOS_USER }}
+          PATH_TO_SITE: ${{ secrets.HELIOS_PATH }}
+        run: |
+          rsync -az --delete -e 'ssh -o StrictHostKeyChecking=yes' site/ "${USER}@${HOST}:${PATH_TO_SITE}/"
+      - name: Healthcheck after publication
+        env:
+          URL: ${{ secrets.HELIOS_URL }}
+        run: |
+          curl --fail --silent --show-error --retry 5 --retry-delay 3 "$URL" -o /tmp/research_site.html
+          grep -q 'Исследование производительности' /tmp/research_site.html
