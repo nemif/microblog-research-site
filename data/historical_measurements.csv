@@ -1,4 +1,4 @@
 version,description,score,lcp_s,fcp_s,tbt_ms,cls,si_s,origin
 v1,JPEG baseline,75.3,6.09,0.87,134,0,2.16,NIР 2 этап сводная таблица
 v2,WebP plus lazy loading,98.6,0.88,0.86,94,0,2.42,NIР 2 этап сводная таблица
-v3,AVIF WebP JPEG plus srcset,99.0,1.2,0.84,112,0,1.42,NIР 2 этап сводная таблица
+v3,AVIF WebP JPEG plus srcset,99.0,0.84,0.84,112,0,1.42,NIР 2 этап сводная таблица
