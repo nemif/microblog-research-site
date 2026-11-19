@@ -33,7 +33,7 @@ jobs:
           USER: ${{ secrets.HELIOS_USER }}
           PATH_TO_SITE: ${{ secrets.HELIOS_PATH }}
         run: |
-          rsync -az --delete -e 'ssh -o StrictHostKeyChecking=yes' site/ "${USER}@${HOST}:${PATH_TO_SITE}/"
+          rsync -az -e 'ssh -p 2222 -o StrictHostKeyChecking=yes' site/ "${USER}@${HOST}:${PATH_TO_SITE}/"
       - name: Healthcheck after publication
         env:
           URL: ${{ secrets.HELIOS_URL }}
