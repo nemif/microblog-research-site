@@ -3,7 +3,7 @@ site_description: Научные материалы и воспроизводи�
 site_author: Фотеев Иван Алексеевич
 # Оставьте site_url пустым до создания публичного URL; позже установите его в GitHub Pages URL.
 # Пример: https://USERNAME.github.io/REPOSITORY/
-# site_url: https://USERNAME.github.io/REPOSITORY/
+site_url: https://nemif.github.io/microblog-research-site/
 use_directory_urls: false
 nav:
   - Главная: index.md
@@ -11,6 +11,7 @@ nav:
   - Результаты эксперимента: results.md
   - Научные источники: sources.md
   - О воспроизводимости: reproducibility.md
+  - Метаданные сборки: build-info.md
   - Лицензии: licenses.md
 theme:
   name: material

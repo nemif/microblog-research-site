@@ -5,6 +5,8 @@ import json
 import os
 import subprocess
 import sys
+import datetime
+import time
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -12,6 +14,7 @@ SOURCE = ROOT / 'data' / 'historical_measurements.csv'
 TARGET = ROOT / 'docs' / 'results.md'
 FIGURE = ROOT / 'docs' / 'assets' / 'lcp.svg'
 CACHE = ROOT / '.cache' / 'generation.json'
+BUILD_INFO = ROOT / 'docs' / 'build-info.md'
 
 
 def sha256(path):
@@ -25,13 +28,34 @@ def revision():
         return 'git-репозиторий пока не создан'
 
 
+def build_metadata():
+    # Always regenerate publication metadata, including on a cache hit.
+    # Scientific numeric outputs are kept separate from a volatile timestamp.
+    commit = os.environ.get('GITHUB_SHA') or revision()
+    date = datetime.datetime.now(datetime.timezone.utc).strftime('%Y-%m-%d %H:%M:%S UTC')
+    source_hash = sha256(SOURCE)
+    lines = [
+        '# Метаданные сборки', '',
+        '| Поле | Значение |', '| --- | --- |',
+        f'| Git-коммит | `{commit}` |',
+        f'| Дата сборки (UTC) | {date} |',
+        '| Версия датасета | `nir2-summary-v1` |',
+        f'| SHA-256 CSV | `{source_hash}` |',
+        '',
+        '> Исторические данные: второй этап НИР. Дата публикации не является датой измерений.',
+    ]
+    BUILD_INFO.write_text('\n'.join(lines) + '\n', encoding='utf-8')
+    print('BUILD METADATA: обновлены SHA, время сборки и версия данных')
+
+
 def main():
     import matplotlib
     matplotlib.use('Agg')
     import matplotlib.pyplot as plt
-    digest = hashlib.sha256((sha256(SOURCE) + sha256(Path(__file__)) + matplotlib.__version__ + revision()).encode()).hexdigest()
+    digest = hashlib.sha256((sha256(SOURCE) + sha256(Path(__file__)) + matplotlib.__version__).encode()).hexdigest()
     if CACHE.exists() and TARGET.exists() and FIGURE.exists() and json.loads(CACHE.read_text(encoding='utf8')).get('digest') == digest:
         print('CACHE HIT: данные не изменились; пересчёт и график пропущены')
+        build_metadata()
         return
     with SOURCE.open(encoding='utf-8', newline='') as f:
         rows = list(csv.DictReader(f))
@@ -81,6 +105,7 @@ def main():
     CACHE.parent.mkdir(parents=True, exist_ok=True)
     CACHE.write_text(json.dumps({'digest': digest, 'source_sha256':sha256(SOURCE)}, indent=2), encoding='utf8')
     print('CACHE MISS: CSV обработан, результаты и SVG обновлены')
+    build_metadata()
 
 if __name__ == '__main__':
     main()
